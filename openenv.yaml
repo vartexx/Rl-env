@@ -1,0 +1,32 @@
+name: support-triage-openenv
+version: 1.0.0
+description: >
+  Real-world customer support triage environment with graded tasks for
+  classification, assignment, escalation, and resolution decisions.
+tags:
+  - openenv
+  - customer-support
+  - triage
+  - rl
+entrypoint:
+  type: python
+  module: support_triage_env.environment
+  class: SupportTriageEnv
+api:
+  reset: /reset
+  step: /step
+  state: /state
+tasks:
+  - id: triage_easy_password_reset
+    difficulty: easy
+    objective: Resolve one account-access ticket end-to-end.
+  - id: triage_medium_mixed_queue
+    difficulty: medium
+    objective: Correctly triage abuse, billing, and bug tickets under SLA pressure.
+  - id: triage_hard_backlog_optimization
+    difficulty: hard
+    objective: Optimize a six-ticket backlog with severe SLA and priority constraints.
+models:
+  action: support_triage_env.models.Action
+  observation: support_triage_env.models.Observation
+  reward: support_triage_env.models.Reward

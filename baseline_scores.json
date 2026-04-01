@@ -1,0 +1,30 @@
+{
+  "macro_average": 0.3111,
+  "model": "openai/gpt-4o-mini",
+  "tasks": {
+    "triage_easy_password_reset": {
+      "assignment": 0.2,
+      "classification": 0.25,
+      "efficiency": 0.0,
+      "outcome": 0.0,
+      "response": 0.15,
+      "score": 0.6
+    },
+    "triage_hard_backlog_optimization": {
+      "assignment": 0.06666666666666667,
+      "classification": 0.0,
+      "efficiency": 0.0,
+      "outcome": 0.06666666666666667,
+      "response": 0.0,
+      "score": 0.13333333333333333
+    },
+    "triage_medium_mixed_queue": {
+      "assignment": 0.06666666666666667,
+      "classification": 0.0,
+      "efficiency": 0.0,
+      "outcome": 0.13333333333333333,
+      "response": 0.0,
+      "score": 0.2
+    }
+  }
+}
