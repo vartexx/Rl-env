@@ -113,6 +113,14 @@ python inference.py
 
 Output is JSON with per-task scores and macro average.
 
+The script now emits evaluator-compatible structured stdout lines in strict order:
+
+- `[START] task=<task_name> env=<benchmark> model=<model_name>`
+- `[STEP] step=<n> action=<action_str> reward=<0.00> done=<true|false> error=<msg|null>`
+- `[END] success=<true|false> steps=<n> rewards=<r1,r2,...,rn>`
+
+This format is intended for automated parsing during benchmark evaluation.
+
 ### Baseline Scores
 
 Latest run (`MODEL_NAME=openai/gpt-4o-mini`) produced:
