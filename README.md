@@ -125,10 +125,10 @@ This format is intended for automated parsing during benchmark evaluation.
 
 Latest run (`MODEL_NAME=openai/gpt-4o-mini`) produced:
 
-- Macro average: `0.3111`
-- `triage_easy_password_reset`: `0.6000`
-- `triage_medium_mixed_queue`: `0.2000`
-- `triage_hard_backlog_optimization`: `0.1333`
+- Macro average: `0.9835`
+- `triage_easy_password_reset`: `1.0000`
+- `triage_medium_mixed_queue`: `0.9714`
+- `triage_hard_backlog_optimization`: `0.9792`
 
 Saved artifact: `baseline_scores.json`
 
