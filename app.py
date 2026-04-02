@@ -26,9 +26,10 @@ def list_tasks() -> dict:
 
 
 @app.post("/reset", response_model=Observation)
-def reset(payload: ResetRequest) -> Observation:
+def reset(payload: ResetRequest | None = None) -> Observation:
     try:
-        return env.reset(task_id=payload.task_id)
+        task_id = payload.task_id if payload is not None else None
+        return env.reset(task_id=task_id)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
