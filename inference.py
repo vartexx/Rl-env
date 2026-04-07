@@ -27,8 +27,8 @@ Use only fields needed by the chosen action_type.
 """
 
 
-API_BASE_URL = os.getenv("API_BASE_URL") or "https://router.huggingface.co/v1"
-MODEL_NAME = os.getenv("MODEL_NAME") or "openai/gpt-4o-mini"
+API_BASE_URL = os.getenv("API_BASE_URL")
+MODEL_NAME = os.getenv("MODEL_NAME")
 BENCHMARK = os.getenv("BENCHMARK") or "support-triage-openenv"
 
 
@@ -59,14 +59,19 @@ def log_end(success: bool, steps: int, rewards: List[float]) -> None:
 
 
 def build_client() -> OpenAI:
-    api_key = os.getenv("OPENAI_API_KEY") or os.getenv("HF_TOKEN")
+    api_key = os.getenv("API_KEY") or os.getenv("OPENAI_API_KEY") or os.getenv("HF_TOKEN")
     if not api_key:
-        raise RuntimeError("OPENAI_API_KEY or HF_TOKEN is required")
+        raise RuntimeError("API_KEY (or OPENAI_API_KEY/HF_TOKEN) is required")
+
+    if not API_BASE_URL:
+        raise RuntimeError("API_BASE_URL is required")
 
     return OpenAI(api_key=api_key, base_url=API_BASE_URL)
 
 
 def model_name() -> str:
+    if not MODEL_NAME:
+        raise RuntimeError("MODEL_NAME is required")
     return MODEL_NAME
 
 
@@ -186,9 +191,38 @@ def _next_action_for_ticket(ticket: Dict, phase: int) -> Optional[Action]:
 
 
 def choose_action(client: OpenAI, model: str, obs: Dict, progress: Dict[str, int]) -> Action:
-    # Heuristic policy is deterministic and scores better than the previous model-driven baseline.
-    # The OpenAI client remains available for compatibility with the submission requirements.
-    _ = client, model
+    # Primary path: request an action through the provided LLM proxy.
+    # Fallback path: deterministic heuristic if API call or parsing fails.
+    user_prompt = (
+        "Return exactly one JSON object for the next support action.\n"
+        "Observation:\n"
+        f"{json.dumps(obs, default=str)}\n\n"
+        "Required keys by action_type:\n"
+        "- classify: action_type,ticket_id,predicted_category,predicted_priority\n"
+        "- assign: action_type,ticket_id,team\n"
+        "- respond: action_type,ticket_id,response_template\n"
+        "- resolve: action_type,ticket_id,resolution_code\n"
+        "- escalate: action_type,ticket_id,escalation_reason\n"
+        "- noop: action_type\n"
+        "Allowed categories: billing, bug, account, sales, abuse\n"
+        "Allowed teams: account_ops, billing_ops, engineering, sales, trust_safety\n"
+    )
+
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            temperature=0,
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": user_prompt},
+            ],
+            response_format={"type": "json_object"},
+        )
+        content = response.choices[0].message.content or ""
+        payload = json.loads(content)
+        return Action.model_validate(payload)
+    except Exception:
+        pass
 
     tickets = list(obs.get("tickets", []))
     for ticket in tickets:

@@ -100,6 +100,7 @@ The baseline script is `inference.py` in repository root (as required).
 
 It uses the OpenAI client and reads:
 
+- `API_KEY` (proxy-injected key; preferred)
 - `OPENAI_API_KEY`
 - `API_BASE_URL`
 - `MODEL_NAME`
