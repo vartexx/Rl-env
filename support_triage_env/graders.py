@@ -42,7 +42,8 @@ def _ticket_score_components(ticket) -> Dict[str, float]:
 
 def grade_state(state: EnvState) -> Tuple[float, Dict[str, float]]:
     if not state.tickets:
-        return 0.0, {"empty": 0.0}
+        # Return epsilon instead of 0.0 to satisfy validator requirement (0 < score < 1)
+        return 0.001, {"empty": 0.001}
 
     per_ticket_scores = []
     aggregate = {
@@ -70,6 +71,14 @@ def grade_state(state: EnvState) -> Tuple[float, Dict[str, float]]:
 
     score = sum(aggregate.values())
     score = max(0.0, min(1.0, score))
+    
+    # Ensure score is strictly between 0 and 1 (exclusive)
+    epsilon = 0.001
+    if score == 0.0:
+        score = epsilon
+    elif score == 1.0:
+        score = 1.0 - epsilon
+    
     return score, aggregate
 
 
