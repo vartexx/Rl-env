@@ -79,7 +79,7 @@ Three-ticket queue (abuse, billing, bug). Objective: correctly escalate abuse an
 3. `triage_hard_backlog_optimization` (hard)
 Six-ticket backlog with severe SLA and priority tradeoffs. Objective: optimize routing and outcomes while minimizing inefficient behavior.
 
-Each task has a deterministic grader returning score in `[0.0, 1.0]`.
+Each task has a deterministic grader returning score in `(0.0, 1.0)`.
 
 ## Reward Design
 
@@ -127,7 +127,7 @@ This format is intended for automated parsing during benchmark evaluation.
 Latest run (`MODEL_NAME=openai/gpt-4o-mini`) produced:
 
 - Macro average: `0.9835`
-- `triage_easy_password_reset`: `1.0000`
+- `triage_easy_password_reset`: `0.9990`
 - `triage_medium_mixed_queue`: `0.9714`
 - `triage_hard_backlog_optimization`: `0.9792`
 

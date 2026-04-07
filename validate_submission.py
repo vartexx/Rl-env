@@ -33,8 +33,8 @@ def check_tasks_and_graders() -> None:
         # Intentional noop path ensures grader is not constant and remains bounded.
         env.step(Action(action_type="noop"))
         score = grade_task(env.state())["score"]
-        if not (0.0 <= score <= 1.0):
-            raise RuntimeError(f"Task {task_id} score out of range: {score}")
+        if not (0.0 < score < 1.0):
+            raise RuntimeError(f"Task {task_id} score must be strictly between 0 and 1: {score}")
 
 
 def check_api_shape() -> None:
