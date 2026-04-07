@@ -27,9 +27,11 @@ Use only fields needed by the chosen action_type.
 """
 
 
-API_BASE_URL = os.getenv("API_BASE_URL")
-MODEL_NAME = os.getenv("MODEL_NAME")
+API_BASE_URL = os.getenv("API_BASE_URL") or "https://router.huggingface.co/v1"
+MODEL_NAME = os.getenv("MODEL_NAME") or "openai/gpt-4o-mini"
 BENCHMARK = os.getenv("BENCHMARK") or "support-triage-openenv"
+HF_TOKEN = os.getenv("HF_TOKEN")
+LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME")
 
 
 def _bool_str(value: bool) -> str:
@@ -59,19 +61,14 @@ def log_end(success: bool, steps: int, rewards: List[float]) -> None:
 
 
 def build_client() -> OpenAI:
-    api_key = os.getenv("API_KEY") or os.getenv("OPENAI_API_KEY") or os.getenv("HF_TOKEN")
+    api_key = os.getenv("API_KEY") or HF_TOKEN or os.getenv("OPENAI_API_KEY")
     if not api_key:
         raise RuntimeError("API_KEY (or OPENAI_API_KEY/HF_TOKEN) is required")
-
-    if not API_BASE_URL:
-        raise RuntimeError("API_BASE_URL is required")
 
     return OpenAI(api_key=api_key, base_url=API_BASE_URL)
 
 
 def model_name() -> str:
-    if not MODEL_NAME:
-        raise RuntimeError("MODEL_NAME is required")
     return MODEL_NAME
 
 
