@@ -110,7 +110,8 @@ class SupportTriageEnv:
 
         info: Dict[str, Any] = {}
         if self._state.done:
-            info["grader"] = grade_task(self._state)
+            # Export only the canonical task score for evaluator compatibility.
+            info["grader"] = {"score": grade_task(self._state)["score"]}
 
         reward = Reward(value=step_reward, reason=reward_reason, components=reward_components)
         return StepResult(

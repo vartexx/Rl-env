@@ -5,6 +5,18 @@ from typing import Dict, Tuple
 from .models import EnvState, TicketCategory, TicketStatus
 
 
+EPSILON = 0.001
+
+
+def _strict_score(value: float) -> float:
+    # Normalize every outward-facing score to the open interval (0, 1).
+    if value <= 0.0:
+        return EPSILON
+    if value >= 1.0:
+        return 1.0 - EPSILON
+    return value
+
+
 def _ticket_score_components(ticket) -> Dict[str, float]:
     score = {
         "classification": 0.0,
@@ -42,8 +54,7 @@ def _ticket_score_components(ticket) -> Dict[str, float]:
 
 def grade_state(state: EnvState) -> Tuple[float, Dict[str, float]]:
     if not state.tickets:
-        # Return epsilon instead of 0.0 to satisfy validator requirement (0 < score < 1)
-        return 0.001, {"empty": 0.001}
+        return EPSILON, {"empty": EPSILON}
 
     per_ticket_scores = []
     aggregate = {
@@ -70,20 +81,13 @@ def grade_state(state: EnvState) -> Tuple[float, Dict[str, float]]:
     aggregate["efficiency"] = 0.10 * efficiency
 
     score = sum(aggregate.values())
-    score = max(0.0, min(1.0, score))
-    
-    # Ensure score is strictly between 0 and 1 (exclusive)
-    epsilon = 0.001
-    if score == 0.0:
-        score = epsilon
-    elif score == 1.0:
-        score = 1.0 - epsilon
+    score = _strict_score(max(0.0, min(1.0, score)))
     
     return score, aggregate
 
 
 def grade_task(state: EnvState) -> Dict[str, float]:
     score, components = grade_state(state)
-    result = {"score": score}
-    result.update(components)
+    # Keep only canonical task score in grader payload to avoid ambiguity.
+    result = {"score": _strict_score(score)}
     return result
