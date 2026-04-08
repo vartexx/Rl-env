@@ -55,9 +55,15 @@ def log_step(step: int, action: str, reward: float, done: bool, error: Optional[
     )
 
 
-def log_end(success: bool, steps: int, rewards: List[float]) -> None:
+def log_end(success: bool, steps: int, rewards: List[float], score: Optional[float] = None) -> None:
     rewards_str = ",".join(f"{r:.2f}" for r in rewards)
-    print(f"[END] success={_bool_str(success)} steps={steps} rewards={rewards_str}", flush=True)
+    if score is None:
+        print(f"[END] success={_bool_str(success)} steps={steps} rewards={rewards_str}", flush=True)
+    else:
+        print(
+            f"[END] success={_bool_str(success)} steps={steps} score={score:.6f} rewards={rewards_str}",
+            flush=True,
+        )
 
 
 def build_client() -> OpenAI:
@@ -244,6 +250,7 @@ def run_task(client: OpenAI, model: str, task_id: str) -> Dict[str, float]:
     step_index = 0
     rewards: List[float] = []
     success = False
+    final_score: Optional[float] = None
 
     try:
         done = False
@@ -278,10 +285,11 @@ def run_task(client: OpenAI, model: str, task_id: str) -> Dict[str, float]:
             done = result.done
 
         graded = grade_task(env.state())
-        success = bool(graded.get("score", 0.0) >= 0.6)
+        final_score = float(graded.get("score", 0.0))
+        success = bool(final_score >= 0.6)
         return graded
     finally:
-        log_end(success=success, steps=step_index, rewards=rewards)
+        log_end(success=success, steps=step_index, rewards=rewards, score=final_score)
 
 
 def main() -> None:
